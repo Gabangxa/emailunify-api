@@ -1,0 +1,271 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "EmailUnify API",
+    "version": "0.1.0",
+    "description": "Unified transactional email analytics API. Aggregate delivery events from SendGrid, Postmark, and more into a single normalized endpoint."
+  },
+  "servers": [
+    { "url": "https://emailunify-api.repl.co" }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    },
+    "schemas": {
+      "EmailEvent": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "example": "evt_x1y2z3" },
+          "provider": { "type": "string", "enum": ["sendgrid", "postmark"], "example": "sendgrid" },
+          "type": { "type": "string", "enum": ["delivered", "bounced", "opened", "clicked", "spam", "unsubscribed"] },
+          "email": { "type": "string", "format": "email", "example": "alice@acme.com" },
+          "message_id": { "type": "string", "example": "sg_msg_abc123" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "subject": { "type": "string" },
+              "tags": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      },
+      "ProviderStats": {
+        "type": "object",
+        "properties": {
+          "total": { "type": "integer" },
+          "delivery_rate": { "type": "number" },
+          "bounce_rate": { "type": "number" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" }
+        }
+      }
+    }
+  },
+  "security": [{ "ApiKeyAuth": [] }],
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "getHealth",
+        "summary": "Health check",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "ok" },
+                    "version": { "type": "string", "example": "0.1.0" },
+                    "uptime": { "type": "integer", "example": 3600 }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/providers": {
+      "post": {
+        "operationId": "registerProvider",
+        "summary": "Register a new email provider",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["provider", "api_key"],
+                "properties": {
+                  "provider": { "type": "string", "enum": ["sendgrid", "postmark"] },
+                  "api_key": { "type": "string", "example": "DEMO_sg_test" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Provider registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "example": "prov_abc123" },
+                    "provider": { "type": "string" },
+                    "status": { "type": "string", "example": "connected" },
+                    "events_fetched": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid request", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "get": {
+        "operationId": "listProviders",
+        "summary": "List registered providers",
+        "responses": {
+          "200": {
+            "description": "List of providers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "provider": { "type": "string" },
+                          "status": { "type": "string" },
+                          "last_synced": { "type": "string", "format": "date-time" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/events": {
+      "get": {
+        "operationId": "listEvents",
+        "summary": "Query normalized email events",
+        "parameters": [
+          { "name": "provider", "in": "query", "schema": { "type": "string", "enum": ["sendgrid", "postmark"] } },
+          { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["delivered", "bounced", "opened", "clicked", "spam", "unsubscribed"] } },
+          { "name": "email", "in": "query", "schema": { "type": "string" } },
+          { "name": "from", "in": "query", "schema": { "type": "string", "format": "date-time" } },
+          { "name": "to", "in": "query", "schema": { "type": "string", "format": "date-time" } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 50, "maximum": 200 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated event list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "events": { "type": "array", "items": { "$ref": "#/components/schemas/EmailEvent" } },
+                    "total": { "type": "integer" },
+                    "page_info": {
+                      "type": "object",
+                      "properties": { "has_more": { "type": "boolean" } }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/stats": {
+      "get": {
+        "operationId": "getStats",
+        "summary": "Get aggregate delivery statistics",
+        "parameters": [
+          { "name": "provider", "in": "query", "schema": { "type": "string" } },
+          { "name": "from", "in": "query", "schema": { "type": "string", "format": "date-time" } },
+          { "name": "to", "in": "query", "schema": { "type": "string", "format": "date-time" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistics summary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "period": {
+                      "type": "object",
+                      "properties": { "from": { "type": "string" }, "to": { "type": "string" } }
+                    },
+                    "summary": {
+                      "type": "object",
+                      "properties": {
+                        "total_events": { "type": "integer" },
+                        "delivered": { "type": "integer" },
+                        "bounced": { "type": "integer" },
+                        "opened": { "type": "integer" },
+                        "clicked": { "type": "integer" },
+                        "spam": { "type": "integer" },
+                        "delivery_rate": { "type": "number" },
+                        "bounce_rate": { "type": "number" },
+                        "open_rate": { "type": "number" },
+                        "click_rate": { "type": "number" }
+                      }
+                    },
+                    "by_provider": {
+                      "type": "object",
+                      "additionalProperties": { "$ref": "#/components/schemas/ProviderStats" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/webhooks/inbound/{provider}": {
+      "post": {
+        "operationId": "ingestWebhook",
+        "summary": "Receive raw provider webhook events",
+        "security": [],
+        "parameters": [
+          { "name": "provider", "in": "path", "required": true, "schema": { "type": "string", "enum": ["sendgrid", "postmark"] } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "oneOf": [{ "type": "object" }, { "type": "array" }] }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Events ingested",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "ok" },
+                    "events_ingested": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

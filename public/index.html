@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EmailUnify — Unified Transactional Email Analytics API</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;color:#1a1a2e;background:#fff}
+
+  /* NAV */
+  nav{background:#1a1a2e;padding:0 40px;display:flex;align-items:center;height:60px;position:sticky;top:0;z-index:100}
+  .nav-logo{font-size:18px;font-weight:700;color:#fff}.nav-logo span{color:#4f8ef7}
+  .nav-links{display:flex;gap:24px;margin-left:auto}
+  .nav-links a{color:#9090b8;text-decoration:none;font-size:14px;transition:color .15s}.nav-links a:hover{color:#fff}
+  .nav-cta{background:#4f8ef7;color:#fff!important;padding:6px 16px;border-radius:6px;font-weight:500}
+
+  /* HERO */
+  .hero{background:#1a1a2e;padding:80px 40px;text-align:center}
+  .hero h1{font-size:48px;font-weight:700;color:#fff;max-width:700px;margin:0 auto 16px;line-height:1.2}
+  .hero h1 span{color:#4f8ef7}
+  .hero p{font-size:18px;color:#9090b8;max-width:520px;margin:0 auto 32px;line-height:1.6}
+  .hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+  .btn-primary{background:#4f8ef7;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px;transition:background .15s}
+  .btn-primary:hover{background:#3a7de6}
+  .btn-secondary{background:transparent;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:500;font-size:15px;border:1px solid #3a3a6e;transition:border-color .15s}
+  .btn-secondary:hover{border-color:#4f8ef7}
+
+  /* PROVIDERS STRIP */
+  .providers-strip{background:#0f0f20;padding:16px 40px;display:flex;align-items:center;justify-content:center;gap:32px;flex-wrap:wrap}
+  .providers-strip span{color:#9090b8;font-size:13px}
+  .provider-badge{display:flex;align-items:center;gap:6px;color:#c0c0e0;font-size:14px;font-weight:500}
+
+  /* FEATURES */
+  .features{padding:80px 40px;background:#f8f9fa}
+  .section-title{text-align:center;font-size:32px;font-weight:700;margin-bottom:12px}
+  .section-sub{text-align:center;color:#666;margin-bottom:48px;font-size:16px}
+  .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;max-width:1000px;margin:0 auto}
+  .feature-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:28px;transition:box-shadow .2s}
+  .feature-card:hover{box-shadow:0 8px 24px rgba(79,142,247,.1);border-color:#4f8ef7}
+  .feature-icon{font-size:28px;margin-bottom:12px}
+  .feature-card h3{font-size:16px;font-weight:600;margin-bottom:8px}
+  .feature-card p{color:#666;font-size:14px;line-height:1.6}
+
+  /* PRICING */
+  .pricing{padding:80px 40px}
+  .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:24px;max-width:960px;margin:0 auto}
+  .plan{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:28px;text-align:center}
+  .plan.popular{border-color:#4f8ef7;position:relative}
+  .plan.popular::before{content:'Most Popular';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#4f8ef7;color:#fff;font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px}
+  .plan-name{font-size:14px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+  .plan-price{font-size:36px;font-weight:700;color:#1a1a2e}
+  .plan-price span{font-size:16px;font-weight:400;color:#666}
+  .plan-desc{color:#666;font-size:13px;margin:12px 0 20px}
+  .plan-features{list-style:none;font-size:13px;color:#444;text-align:left}
+  .plan-features li{padding:6px 0;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:8px}
+  .plan-features li::before{content:'✓';color:#4f8ef7;font-weight:700}
+  .plan-btn{display:block;margin-top:20px;padding:10px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;border:1px solid #4f8ef7;color:#4f8ef7;transition:all .15s}
+  .plan-btn:hover,.plan.popular .plan-btn{background:#4f8ef7;color:#fff}
+
+  /* PLAYGROUND */
+  .playground{padding:80px 40px;background:#f8f9fa}
+  .playground-inner{max-width:900px;margin:0 auto}
+  .curl-example{background:#1a1a2e;border-radius:10px;padding:20px;margin-bottom:32px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#e8e8f0;line-height:1.7}
+  .curl-example .comment{color:#6272a4}
+  .playground-form{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:28px}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  .form-group label{display:block;font-size:13px;font-weight:500;color:#374151;margin-bottom:6px}
+  .form-group select,.form-group input{width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s}
+  .form-group select:focus,.form-group input:focus{border-color:#4f8ef7}
+  .send-btn{background:#4f8ef7;color:#fff;border:none;padding:10px 28px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s}
+  .send-btn:hover{background:#3a7de6}
+  .response-box{margin-top:20px;display:none}
+  .response-box .label{font-size:12px;font-weight:600;color:#666;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
+  .response-box pre{border-radius:8px;font-size:12px;max-height:350px;overflow-y:auto}
+
+  /* FOOTER */
+  footer{background:#1a1a2e;color:#9090b8;padding:32px 40px;text-align:center;font-size:13px}
+  footer a{color:#4f8ef7;text-decoration:none}
+
+  @media(max-width:600px){
+    .hero h1{font-size:32px}
+    .form-row{grid-template-columns:1fr}
+    nav{padding:0 20px}
+    .pricing-grid,.features-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Email<span>Unify</span></div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="/docs">Docs</a>
+    <a href="#playground" class="nav-cta">Try It Free</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <h1>One API for all your <span>transactional email</span> analytics</h1>
+  <p>Aggregate delivery events from SendGrid, Postmark, and more into a single normalized endpoint. No more N integrations.</p>
+  <div class="hero-btns">
+    <a href="#playground" class="btn-primary">Try the API Free</a>
+    <a href="/docs" class="btn-secondary">Read the Docs</a>
+  </div>
+</section>
+
+<div class="providers-strip">
+  <span>Works with:</span>
+  <div class="provider-badge">✉ SendGrid</div>
+  <div class="provider-badge">📮 Postmark</div>
+  <div class="provider-badge">📬 Mailgun</div>
+  <div class="provider-badge">🚀 Resend</div>
+</div>
+
+<section id="features" class="features">
+  <div class="section-title">Everything you need, nothing you don't</div>
+  <div class="section-sub">Stop writing the same provider integration for the 4th time.</div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🔗</div>
+      <h3>Unified Events</h3>
+      <p>All delivery events from every provider normalized to a single canonical schema. One query, all providers.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>Provider Stats</h3>
+      <p>Delivery rates, bounce rates, open and click rates broken down by provider. Spot problems instantly.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔔</div>
+      <h3>Webhook Relay</h3>
+      <p>Point your provider webhooks at a single EmailUnify endpoint. We normalize and store everything.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🗄️</div>
+      <h3>90-Day History</h3>
+      <p>Query any event from the past 90 days by provider, type, email, or date range. No data lost.</p>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" class="pricing">
+  <div class="section-title">Simple, honest pricing</div>
+  <div class="section-sub">Start free. Scale when you need to.</div>
+  <div class="pricing-grid">
+    <div class="plan">
+      <div class="plan-name">Free</div>
+      <div class="plan-price">$0<span>/mo</span></div>
+      <div class="plan-desc">For side projects and evaluation</div>
+      <ul class="plan-features">
+        <li>1 provider integration</li>
+        <li>10k events/month</li>
+        <li>7-day history</li>
+        <li>Community support</li>
+      </ul>
+      <a href="#playground" class="plan-btn">Get Started</a>
+    </div>
+    <div class="plan popular">
+      <div class="plan-name">Developer</div>
+      <div class="plan-price">$19<span>/mo</span></div>
+      <div class="plan-desc">For indie devs and small apps</div>
+      <ul class="plan-features">
+        <li>3 provider integrations</li>
+        <li>100k events/month</li>
+        <li>30-day history</li>
+        <li>Webhook relay</li>
+        <li>Email support</li>
+      </ul>
+      <a href="#playground" class="plan-btn">Start Free Trial</a>
+    </div>
+    <div class="plan">
+      <div class="plan-name">Startup</div>
+      <div class="plan-price">$49<span>/mo</span></div>
+      <div class="plan-desc">For growing products</div>
+      <ul class="plan-features">
+        <li>Unlimited providers</li>
+        <li>1M events/month</li>
+        <li>90-day history</li>
+        <li>Webhook relay</li>
+        <li>Priority support</li>
+      </ul>
+      <a href="#playground" class="plan-btn">Start Free Trial</a>
+    </div>
+    <div class="plan">
+      <div class="plan-name">Scale</div>
+      <div class="plan-price">$99<span>/mo</span></div>
+      <div class="plan-desc">For high-volume teams</div>
+      <ul class="plan-features">
+        <li>Unlimited everything</li>
+        <li>Custom retention</li>
+        <li>SLA guarantee</li>
+        <li>Dedicated support</li>
+        <li>Custom integrations</li>
+      </ul>
+      <a href="#playground" class="plan-btn">Contact Us</a>
+    </div>
+  </div>
+</section>
+
+<section id="playground" class="playground">
+  <div class="playground-inner">
+    <div class="section-title" style="text-align:left;margin-bottom:8px">Live API Playground</div>
+    <p style="color:#666;margin-bottom:24px;font-size:15px">Hitting the live API — no signup required. Demo key is pre-filled.</p>
+
+    <div class="curl-example">
+      <span class="comment"># Get stats for last 7 days (copy & run this)</span><br>
+      curl "https://emailunify-api.repl.co/stats" \<br>
+      &nbsp;&nbsp;-H "X-API-Key: eu_demo_key_abc123"
+    </div>
+
+    <div class="playground-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Endpoint</label>
+          <select id="endpoint">
+            <option value="/stats">GET /stats</option>
+            <option value="/events">GET /events</option>
+            <option value="/health">GET /health</option>
+            <option value="/providers">GET /providers</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Provider filter (optional)</label>
+          <select id="providerFilter">
+            <option value="">All providers</option>
+            <option value="sendgrid">SendGrid</option>
+            <option value="postmark">Postmark</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row" id="dateRow">
+        <div class="form-group">
+          <label>From date (optional)</label>
+          <input type="date" id="fromDate">
+        </div>
+        <div class="form-group">
+          <label>To date (optional)</label>
+          <input type="date" id="toDate">
+        </div>
+      </div>
+      <button class="send-btn" onclick="sendRequest()">Send Request</button>
+      <div class="response-box" id="responseBox">
+        <div class="label">Response</div>
+        <pre><code class="language-json" id="responseCode"></code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>EmailUnify API v0.1.0 &mdash; Built for developers who ship fast. &nbsp;&nbsp;<a href="/docs">API Docs</a> &nbsp;|&nbsp; <a href="/health">Health</a></p>
+</footer>
+
+<script>
+async function sendRequest() {
+  const endpoint = document.getElementById('endpoint').value;
+  const provider = document.getElementById('providerFilter').value;
+  const from = document.getElementById('fromDate').value;
+  const to = document.getElementById('toDate').value;
+
+  const params = new URLSearchParams();
+  if (provider) params.set('provider', provider);
+  if (from) params.set('from', new Date(from).toISOString());
+  if (to) params.set('to', new Date(to + 'T23:59:59').toISOString());
+
+  const url = endpoint + (params.toString() ? '?' + params.toString() : '');
+  const btn = document.querySelector('.send-btn');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+
+  try {
+    const resp = await fetch(url, { headers: { 'X-API-Key': 'eu_demo_key_abc123' } });
+    const data = await resp.json();
+    const box = document.getElementById('responseBox');
+    const code = document.getElementById('responseCode');
+    code.textContent = JSON.stringify(data, null, 2);
+    box.style.display = 'block';
+    hljs.highlightElement(code);
+  } catch (e) {
+    document.getElementById('responseCode').textContent = 'Error: ' + e.message;
+    document.getElementById('responseBox').style.display = 'block';
+  } finally {
+    btn.textContent = 'Send Request';
+    btn.disabled = false;
+  }
+}
+
+// Hide date row for /health and /providers
+document.getElementById('endpoint').addEventListener('change', function() {
+  const showDates = ['/stats', '/events'].includes(this.value);
+  document.getElementById('dateRow').style.display = showDates ? 'grid' : 'none';
+});
+</script>
+</body>
+</html>
