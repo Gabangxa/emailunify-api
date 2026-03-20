@@ -11,9 +11,8 @@ npm start
 
 Server starts on `http://0.0.0.0:3000` (or `$PORT`).
 
-## Demo Key
 
-`eu_demo_key_abc123` — works without registration. 200 seed events pre-loaded.
+
 
 ## Endpoints
 
@@ -27,9 +26,7 @@ Server starts on `http://0.0.0.0:3000` (or `$PORT`).
 | POST | `/webhooks/inbound/:provider` | No | Ingest webhooks |
 | GET | `/docs` | No | API documentation |
 
-## Authentication
 
-Pass `X-API-Key: eu_demo_key_abc123` or `Authorization: Bearer eu_demo_key_abc123`.
 
 ## Replit Deployment
 
